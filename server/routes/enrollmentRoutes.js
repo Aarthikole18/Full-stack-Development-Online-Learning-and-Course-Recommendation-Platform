@@ -1,4 +1,5 @@
 const express = require("express");
+const router = express.Router();
 
 const {
   enrollCourse,
@@ -8,10 +9,13 @@ const {
 
 const { protect } = require("../middleware/authMiddleware");
 
-const router = express.Router();
-
+// ENROLL
 router.post("/", protect, enrollCourse);
+
+// MY COURSES
 router.get("/my-courses", protect, getMyCourses);
+
+// UPDATE PROGRESS
 router.put("/progress", protect, updateProgress);
 
 module.exports = router;
