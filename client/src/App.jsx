@@ -7,14 +7,16 @@ export default function App() {
   const [courses, setCourses] = useState([]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // LOAD COURSES
   useEffect(() => {
     fetch(`${API}/courses`)
       .then((res) => res.json())
-      .then((data) => setCourses(data.courses || []))
+      .then((data) => {
+        console.log("COURSES:", data);
+        setCourses(data.courses || []);
+      })
       .catch((err) => console.log(err));
   }, []);
 
@@ -31,7 +33,7 @@ export default function App() {
     console.log("LOGIN:", data);
 
     if (data.token) {
-      localStorage.setItem("token", data.token); // 🔥 IMPORTANT
+      localStorage.setItem("token", data.token);
       setIsLoggedIn(true);
       alert("Login successful");
     } else {
@@ -43,11 +45,6 @@ export default function App() {
   const enroll = async (courseId) => {
     const token = localStorage.getItem("token");
 
-    if (!token) {
-      alert("Please login first");
-      return;
-    }
-
     const res = await fetch(`${API}/enrollments`, {
       method: "POST",
       headers: {
@@ -58,12 +55,18 @@ export default function App() {
     });
 
     const data = await res.json();
-    alert(data.message);
+
+    console.log("ENROLL:", data);
+
+    if (data.success) {
+      alert("Enrolled Successfully");
+    } else {
+      alert(data.message || "Enroll failed");
+    }
   };
 
   return (
     <div className="app">
-      <h1 className="title">📚 Online Learning Platform</h1>
 
       {/* LOGIN SECTION */}
       {!isLoggedIn && (
@@ -88,7 +91,7 @@ export default function App() {
         </div>
       )}
 
-      {/* COURSES */}
+      {/* COURSES SECTION */}
       <div className="grid">
         {courses.map((course) => (
           <div className="card" key={course._id}>
@@ -96,11 +99,12 @@ export default function App() {
             <p>{course.description}</p>
 
             <button onClick={() => enroll(course._id)}>
-              Enroll 🚀
+              Enroll
             </button>
           </div>
         ))}
       </div>
+
     </div>
   );
 }
